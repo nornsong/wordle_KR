@@ -7,19 +7,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class word {
+@Table(name = "word")
+public class Word {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column()
     private String word;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String definition;
 
-    @Column // 품사
+    @Column  // 품사
     private String pos;
 
 //    public word(String word, String definition, String pos) {
