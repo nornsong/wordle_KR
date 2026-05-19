@@ -2,5 +2,11 @@ package com.koreanwordle.game.service;
 
 public interface GameService {
 
-    void getNewGame();
+    String getDailyGame();
+
+    void createDailyWord();
+
+    void getCreateNewGame();
+
+
 }
