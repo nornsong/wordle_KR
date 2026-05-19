@@ -20,8 +20,8 @@ public class GameController {
 
 
     // 게임 생성
-    @PostMapping("/createDailyGame")
-    public ResponseEntity<Void> getDailyGame() {
+    @PostMapping("/createGame")
+    public ResponseEntity<Void> getGame() {
         game.getNewGame();
         return ResponseEntity.status(HttpStatus.OK).build();
     }
