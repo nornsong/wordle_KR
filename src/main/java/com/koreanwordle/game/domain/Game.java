@@ -19,10 +19,10 @@ public class Game {
     @Column
     private String correctWord;
 
-    @Column
+    @Column // 최대시도횟수
     private Integer maxAttempts;
 
-    @Column
+    @Column // 누적시도횟수
     private Integer attemptsCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,4 +31,11 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Guess> guesses = new ArrayList<>();
+
+    public Game(Word word) {
+        this.word = word;
+        this.correctWord = word.getWord().replace("-", "");
+        this.maxAttempts = 6;
+        this.attemptsCount = 0;
+    }
 }
