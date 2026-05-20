@@ -17,6 +17,9 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column
+    private GameType gameType;
 
     @Column
     private String correctWord;
@@ -45,6 +48,7 @@ public class Game {
         this.correctWord = word.getWord().replace("-", "");
         this.maxAttempts = 6;
         this.attemptsCount = 0;
+        this.gameType = GameType.RANDOM;
     }
 
     public static Game daily(Word word) {
@@ -54,6 +58,14 @@ public class Game {
         game.maxAttempts = 6;
         game.attemptsCount = 0;
         game.gameDate = LocalDate.now();
+        game.gameType = GameType.DAILY;
         return game;
+    }
+    
+    private String getAnswerWord(Game game) {
+        if("DAILY".equals(game.getGameType())) {
+            return game.getDailyWord();
+        }
+        return game.getCorrectWord();
     }
 }

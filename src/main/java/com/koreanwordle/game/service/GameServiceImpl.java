@@ -2,6 +2,7 @@ package com.koreanwordle.game.service;
 
 import com.koreanwordle.game.domain.Game;
 import com.koreanwordle.game.domain.Word;
+import com.koreanwordle.game.dto.GuessResponse;
 import com.koreanwordle.game.repository.GameRepository;
 import com.koreanwordle.game.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,12 @@ public class GameServiceImpl implements GameService {
                 .orElseThrow(() -> new IllegalStateException("등록된 단어가 없습니다."));
 
         gameRepository.save(new Game(word));
+    }
+    
+    @Override
+    @Transactional
+    public GuessResponse submitAnswer(Long gameId, String submittedWord) {
+        return null;
     }
 }
 

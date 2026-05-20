@@ -1,14 +1,13 @@
 package com.koreanwordle.game.controller;
 
+import com.koreanwordle.game.dto.GuessRequest;
+import com.koreanwordle.game.dto.GuessResponse;
 import com.koreanwordle.game.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,4 +29,12 @@ public class GameController {
         game.getCreateNewGame();
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+    
+    // 사용자 정답 제출
+    @PostMapping("/submitAnswer")
+    public ResponseEntity<GuessResponse> submitAnswer(@RequestBody GuessRequest request) {
+        GuessResponse response = game.submitAnswer(request.gameId(), request.submittedWord());
+        return ResponseEntity.ok(response);
+    }
+    
 }

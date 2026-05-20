@@ -22,7 +22,7 @@ public class Guess {
     @Column // 정답제출일
     private LocalDateTime createdAt;
 
-    @Column // 초성, 중성, 종성 힌트
+    @Column(columnDefinition = "TEXT") // 초성, 중성, 종성 힌트 json 저장
     private String answerResult;
 
     @ManyToOne(fetch = FetchType.LAZY)
