@@ -50,6 +50,8 @@ public class GameServiceImpl implements GameService {
     @Override
     @Transactional
     public GuessResponse submitAnswer(Long gameId, String submittedWord) {
+
+
         return null;
     }
 }

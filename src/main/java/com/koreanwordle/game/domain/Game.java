@@ -6,26 +6,27 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(
+    name = "game",
+    uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_userId_gameDate",
+                columnNames = {"userId", "gameDate"}
+        )
+    }
+)
 public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column
-    private GameType gameType;
 
-    @Column
-    private String correctWord;
-
-    @Column
-    private String dailyWord;
+    @Column // uuid
+    private String userId;
 
     @Column // 최대시도횟수
     private Integer maxAttempts;
@@ -33,39 +34,36 @@ public class Game {
     @Column // 누적시도횟수
     private Integer attemptsCount;
 
-    @Column // 오늘의 문제 확인용
+    @Column // null이면 랜덤단어문제, null이 아니면 오늘의 단어문제
     private LocalDate gameDate;
+
+    @Column
+    private LocalDateTime startedAt;
+
+    @Column
+    private LocalDateTime completedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GameStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id")
     private Word word;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Guess> guesses = new ArrayList<>();
-
-    public Game(Word word) {
+    public Game(String userId, Word word) {
+        this.userId = userId;
         this.word = word;
-        this.correctWord = word.getWord().replace("-", "");
         this.maxAttempts = 6;
         this.attemptsCount = 0;
-        this.gameType = GameType.RANDOM;
+        this.startedAt = LocalDateTime.now();
+        this.gameDate = null;
+        this.status = GameStatus.IN_PROGRESS;
     }
 
-    public static Game daily(Word word) {
-        Game game = new Game();
-        game.word = word;
-        game.dailyWord = word.getWord().replace("-", "");
-        game.maxAttempts = 6;
-        game.attemptsCount = 0;
+    public static Game daily(String userId, Word word) {
+        Game game = new Game(userId, word);
         game.gameDate = LocalDate.now();
-        game.gameType = GameType.DAILY;
         return game;
-    }
-    
-    private String getAnswerWord(Game game) {
-        if("DAILY".equals(game.getGameType())) {
-            return game.getDailyWord();
-        }
-        return game.getCorrectWord();
     }
 }

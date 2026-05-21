@@ -14,7 +14,7 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column()
+    @Column(nullable = false, unique = true)
     private String word;
 
     @Column(columnDefinition = "TEXT")
