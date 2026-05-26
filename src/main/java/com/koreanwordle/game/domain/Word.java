@@ -22,10 +22,4 @@ public class Word {
 
     @Column  // 품사
     private String pos;
-
-//    public word(String word, String definition, String pos) {
-//        this.word = word;
-//        this.definition = definition;
-//        this.pos = pos;
-//    }
 }

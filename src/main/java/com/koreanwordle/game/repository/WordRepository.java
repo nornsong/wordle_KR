@@ -13,4 +13,11 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query(value =
             "select * from word order by rand() limit 1", nativeQuery = true)
     Optional<Word> findRandomWord();
+
+    @Query("""
+      select count(w) > 0
+      from Word w
+      where function('replace', w.word, '-', '') = :submittedWord
+  """)
+    boolean findWordInList(String submittedWord);
 }

@@ -2,7 +2,7 @@ package com.koreanwordle.game.dto;
 
 import java.time.LocalDateTime;
 
-public record GameSessionResponse(
+public record GameResponse(
         Long sessionId,
         Long gameId,
         Integer attemptsCount,
@@ -10,7 +10,7 @@ public record GameSessionResponse(
         LocalDateTime startedAt,
         String status
 ) {
-    public static GameSessionResponse of(
+    public static GameResponse of(
             Long sessionId,
             Long gameId,
             Integer attemptsCount,
@@ -18,7 +18,7 @@ public record GameSessionResponse(
             LocalDateTime startedAt,
             String status
     ) {
-        return new GameSessionResponse(
+        return new GameResponse(
                 sessionId,
                 gameId,
                 attemptsCount,
