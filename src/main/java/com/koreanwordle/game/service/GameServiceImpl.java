@@ -6,6 +6,8 @@ import com.koreanwordle.game.dto.GameResponse;
 import com.koreanwordle.game.dto.GuessResponse;
 import com.koreanwordle.game.repository.GameRepository;
 import com.koreanwordle.game.repository.WordRepository;
+import com.koreanwordle.game.util.HangulUtils;
+import com.koreanwordle.game.util.SyllableParts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,15 +86,13 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException("사전에 없는 단어입니다.");
         }
 
-
-
-
-
-
-
-
+        // util 집어넣기
+        List<SyllableParts> userWord = HangulUtils.decomposeWord(submittedWord);
+        List<SyllableParts> questionWord = HangulUtils.decomposeWord(correctWord);
 
         boolean correct = submittedWord.equals(correctWord);
+
+
 
         return new GuessResponse(
                 submittedWord,
