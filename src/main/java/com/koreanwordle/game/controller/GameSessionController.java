@@ -37,5 +37,4 @@ public class GameSessionController {
         GuessResponse response = gameService.submitAnswer(request.gameId(), request.submittedWord());
         return ResponseEntity.ok(response);
     }
-    
 }

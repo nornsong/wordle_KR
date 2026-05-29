@@ -1,41 +1,47 @@
 package com.koreanwordle.game.dto;
 
+import com.koreanwordle.game.service.rules.HintType;
+import com.koreanwordle.game.service.rules.SyllableType;
+
 import java.util.List;
 
 public record GuessResponse(
-        String submittedWord,
         boolean correct,
         List<SyllableHint> results
 ) {
+    public static GuessResponse of(
+            boolean correct,
+            List<SyllableHint> results
+    ) {
+        return new GuessResponse(correct, results);
+    }
+
     public record SyllableHint(
             int index,
-            String submittedSyllable,
-            SyllableStatus syllableStatus,
-            List<JamoHint> jamoResults
-    ) { }
+            String syllable,
+            List<JamoHint> jamos
+    ) {
+        public static SyllableHint of(
+                int index,
+                String syllable,
+                List<JamoHint> jamos
+        ) {
+            return new SyllableHint(index, syllable, jamos);
+        }
+    }
 
     public record JamoHint(
-            JamoType type,
-            String submitted,
-            HintStatus status
-    ) {}
-    
-    public enum SyllableStatus {
-        CORRECT, // 정답
-        PRESENT, // 는 존재하지만 위치가 다름
-        ABSENT   // 단어가 존재하지 않음
-    }
-    
-    public enum JamoType {
-        ONSET,
-        NUCLEUS,
-        CODA
-    }
-    
-    public enum HintStatus {
-        CORRECT, // 정답
-        PRESENT, // 는 존재하지만 위치가 다름
-        ABSENT   // 단어가 존재하지 않음
+            SyllableType type,
+            String value,
+            HintType hint
+    ) {
+        public static JamoHint of(
+                SyllableType type,
+                String value,
+                HintType hint
+        ) {
+            return new JamoHint(type, value, hint);
+        }
     }
 }
 
