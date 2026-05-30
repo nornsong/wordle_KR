@@ -131,9 +131,8 @@ public class GameServiceImpl implements GameService {
                     if (i == j) {
                         onsetStatus = HintType.CORRECT;
                         usedAnswerOnset[j] = true;
-                        break;
                     }
-                    else{
+                    else if(onsetStatus != HintType.CORRECT) {
                         onsetStatus = HintType.PRESENT;
                     }
                 }
@@ -141,9 +140,8 @@ public class GameServiceImpl implements GameService {
                     if (i == j) {
                         nucleusStatus = HintType.CORRECT;
                         usedAnswerNucleus[j] = true;
-                        break;
                     }
-                    else{
+                    else if(nucleusStatus != HintType.CORRECT) {
                         nucleusStatus = HintType.PRESENT;
                     }
                 }
@@ -151,9 +149,8 @@ public class GameServiceImpl implements GameService {
                     if (i == j) {
                         codaStatus = HintType.CORRECT;
                         usedAnswerCoda[j] = true;
-                        break;
                     }
-                    else {
+                    else if(codaStatus != HintType.CORRECT) {
                         codaStatus = HintType.PRESENT;
                     }
                 }
