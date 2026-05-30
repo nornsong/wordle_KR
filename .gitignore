@@ -38,6 +38,7 @@ out/
 
 ### Codex CLI ###
 AGENT.md
+codex.txt
 
 ### YML ###
 /src/main/resources/application.yml

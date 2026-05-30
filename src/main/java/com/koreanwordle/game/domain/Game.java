@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -18,42 +16,56 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String correctWord;
-
-    @Column
-    private String dailyWord;
-
-    @Column // 최대시도횟수
-    private Integer maxAttempts;
-
     @Column // 누적시도횟수
     private Integer attemptsCount;
 
-    @Column // 오늘의 문제 확인용
-    private LocalDate gameDate;
+    @Column // 최대시도횟수
+    private Integer maxAttemptsCount;
+
+    @Column // 풀이 시작 시간
+    private LocalDateTime startedAt;
+
+    @Column
+    private LocalDateTime completedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GameStatus status;
+
+    @Column(unique = true) // 오늘의 단어 문제용 시간 필드
+    private LocalDate dailyGameDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GameType gameType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "word_id")
+    @JoinColumn(name = "word_id",  nullable = false)
     private Word word;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Guess> guesses = new ArrayList<>();
-
-    public Game(Word word) {
-        this.word = word;
-        this.correctWord = word.getWord().replace("-", "");
-        this.maxAttempts = 6;
-        this.attemptsCount = 0;
-    }
-
-    public static Game daily(Word word) {
+    public static Game dailyGame(Word word, LocalDate dailyGameDate) {
         Game game = new Game();
         game.word = word;
-        game.dailyWord = word.getWord().replace("-", "");
-        game.maxAttempts = 6;
         game.attemptsCount = 0;
-        game.gameDate = LocalDate.now();
+        game.maxAttemptsCount = 7;
+        game.startedAt = LocalDateTime.now();
+        game.completedAt = null;
+        game.dailyGameDate = dailyGameDate;
+        game.gameType = GameType.DAILY;
+        game.status = GameStatus.IN_PROGRESS;
+        return game;
+    }
+
+    public static Game randomGame(Word word) {
+        Game game = new Game();
+        game.word = word;
+        game.attemptsCount = 0;
+        game.maxAttemptsCount = 7;
+        game.startedAt = LocalDateTime.now();
+        game.completedAt = null;
+        game.dailyGameDate = null;
+        game.gameType = GameType.RANDOM;
+        game.status = GameStatus.IN_PROGRESS;
         return game;
     }
 }

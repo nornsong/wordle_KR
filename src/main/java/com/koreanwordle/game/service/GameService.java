@@ -1,12 +1,13 @@
 package com.koreanwordle.game.service;
 
+import com.koreanwordle.game.dto.GameResponse;
+import com.koreanwordle.game.dto.GuessResponse;
+
 public interface GameService {
 
-    String getDailyGame();
+    GameResponse getCreateDailyGame();
 
-    void createDailyWord();
-
-    void getCreateNewGame();
-
-
+    GameResponse getCreateRandomGame();
+    
+    GuessResponse submitAnswer(Long gameId, String submittedWord);
 }

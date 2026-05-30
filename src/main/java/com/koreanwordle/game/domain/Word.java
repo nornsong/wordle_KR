@@ -14,7 +14,7 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column()
+    @Column(name = "word", nullable = false, unique = true)
     private String word;
 
     @Column(columnDefinition = "TEXT")
@@ -22,10 +22,4 @@ public class Word {
 
     @Column  // 품사
     private String pos;
-
-//    public word(String word, String definition, String pos) {
-//        this.word = word;
-//        this.definition = definition;
-//        this.pos = pos;
-//    }
 }
