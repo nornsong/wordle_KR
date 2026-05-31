@@ -43,7 +43,7 @@ public class Game {
     @JoinColumn(name = "word_id",  nullable = false)
     private Word word;
 
-    public static Game dailyGame(Word word, LocalDate dailyGameDate) {
+    public static Game createDailyGame(Word word, LocalDate dailyGameDate) {
         Game game = new Game();
         game.word = word;
         game.attemptsCount = 0;
@@ -56,7 +56,7 @@ public class Game {
         return game;
     }
 
-    public static Game randomGame(Word word) {
+    public static Game createRandomGame(Word word) {
         Game game = new Game();
         game.word = word;
         game.attemptsCount = 0;

@@ -4,10 +4,12 @@ import com.koreanwordle.game.domain.Game;
 import com.koreanwordle.game.domain.GameType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
+@Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("""
