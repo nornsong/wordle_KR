@@ -38,11 +38,10 @@ public class GameServiceImpl implements GameService {
                     Word word = wordRepository.findRandomWord()
                             .orElseThrow(() -> new IllegalStateException("등록된 단어가 없습니다."));
 
-                    return gameRepository.save(Game.dailyGame(word, today));
+                    return gameRepository.save(Game.createDailyGame(word, today));
                 });
 
         return GameResponse.of(
-                game.getId(),
                 game.getId(),
                 game.getAttemptsCount(),
                 game.getMaxAttemptsCount(),
@@ -58,10 +57,9 @@ public class GameServiceImpl implements GameService {
         Word word = wordRepository.findRandomWord()
                 .orElseThrow(() -> new IllegalStateException("등록된 단어가 없습니다."));
 
-        Game game = gameRepository.save(Game.randomGame(word));
+        Game game = gameRepository.save(Game.createRandomGame(word));
 
         return GameResponse.of(
-                game.getId(),
                 game.getId(),
                 game.getAttemptsCount(),
                 game.getMaxAttemptsCount(),
@@ -71,7 +69,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public GuessResponse submitAnswer(Long gameId, String submittedWord) {
 
         String correctWord = gameRepository.findNormalizedAnswerWord(gameId)
