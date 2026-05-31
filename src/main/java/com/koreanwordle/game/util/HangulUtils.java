@@ -1,5 +1,8 @@
 package com.koreanwordle.game.util;
 
+import com.koreanwordle.game.exception.CustomException;
+import com.koreanwordle.game.exception.ErrorCode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +13,7 @@ public class HangulUtils {
     // 한글 음절을 초성/중성/종성으로 분해
     public static SyllableParts decompose(char syllable) {
         if(syllable < '가' || syllable > '힣') {
-            throw new IllegalArgumentException("완성형 한글 음절만 분해할 수 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_WORD_FORMAT);
         }
 
         int base = syllable - '가';
