@@ -1,19 +1,22 @@
 package com.koreanwordle.game.repository;
 
 import com.koreanwordle.game.domain.Word;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("""
-            select * from word order by rand() limit 1
+            select w
+            from Word w
+            order by function('rand')
     """)
-    Optional<Word> findRandomWord();
+    List<Word> findRandomWord(Pageable pageable);
 
     @Query("""
       select count(w) > 0

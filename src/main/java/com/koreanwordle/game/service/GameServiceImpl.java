@@ -13,6 +13,7 @@ import com.koreanwordle.game.rules.SyllableType;
 import com.koreanwordle.game.util.HangulUtils;
 import com.koreanwordle.game.dto.SyllableParts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,9 @@ public class GameServiceImpl implements GameService {
 
         Game game = gameRepository.getDailyGame(DAILY, today)
                 .orElseGet(() -> {
-                    Word word = wordRepository.findRandomWord()
+                    Word word = wordRepository.findRandomWord(PageRequest.of(0, 1))
+                            .stream()
+                            .findFirst()
                             .orElseThrow(() -> new CustomException(ErrorCode.WORD_NOT_FOUND));
 
                     return gameRepository.save(Game.createDailyGame(word, today));
@@ -56,7 +59,9 @@ public class GameServiceImpl implements GameService {
     @Transactional
     public GameResponse getCreateRandomGame() {
 
-        Word word = wordRepository.findRandomWord()
+        Word word = wordRepository.findRandomWord(PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.WORD_NOT_FOUND));
 
         Game game = gameRepository.save(Game.createRandomGame(word));
