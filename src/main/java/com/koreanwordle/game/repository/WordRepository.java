@@ -10,8 +10,9 @@ import java.util.Optional;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
 
-    @Query(value =
-            "select * from word order by rand() limit 1", nativeQuery = true)
+    @Query("""
+            select * from word order by rand() limit 1
+    """)
     Optional<Word> findRandomWord();
 
     @Query("""

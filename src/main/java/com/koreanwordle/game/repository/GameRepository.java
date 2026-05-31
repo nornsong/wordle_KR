@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("""
-            select g
+            select function('replace', w.word, '-', '')
             from Game g
             join fetch g.word
             where g.gameType = :gameType

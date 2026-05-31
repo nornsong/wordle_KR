@@ -6,29 +6,28 @@ import com.koreanwordle.game.dto.GuessResponse;
 import com.koreanwordle.game.service.GameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/wordleKR")
-public class GameSessionController {
+public class GameController {
 
     private final GameService gameService;
 
     // 오늘의 게임 생성
     @GetMapping("/dailyGame")
     public ResponseEntity<GameResponse> getDailyGame() {
-        gameService.getCreateDailyGame();
-        return ResponseEntity.status(HttpStatus.OK).build();
+        GameResponse response = gameService.getCreateDailyGame();
+        return ResponseEntity.ok(response);
     }
 
     // 게임 생성
     @PostMapping("/createGame")
     public ResponseEntity<GameResponse> getCreateRandomGame() {
-        gameService.getCreateRandomGame();
-        return ResponseEntity.status(HttpStatus.OK).build();
+        GameResponse response = gameService.getCreateRandomGame();
+        return ResponseEntity.ok(response);
     }
     
     // 사용자 정답 제출

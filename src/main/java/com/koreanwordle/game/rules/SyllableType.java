@@ -1,4 +1,4 @@
-package com.koreanwordle.game.service.rules;
+package com.koreanwordle.game.rules;
 
 public enum SyllableType {
     ONSET,

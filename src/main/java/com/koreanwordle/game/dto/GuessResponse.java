@@ -1,7 +1,7 @@
 package com.koreanwordle.game.dto;
 
-import com.koreanwordle.game.service.rules.HintType;
-import com.koreanwordle.game.service.rules.SyllableType;
+import com.koreanwordle.game.rules.HintType;
+import com.koreanwordle.game.rules.SyllableType;
 
 import java.util.List;
 
