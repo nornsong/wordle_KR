@@ -1,5 +1,6 @@
 package com.koreanwordle.game.util;
 
+import com.koreanwordle.game.dto.SyllableParts;
 import com.koreanwordle.game.exception.CustomException;
 import com.koreanwordle.game.exception.ErrorCode;
 

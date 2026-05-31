@@ -8,11 +8,12 @@ import com.koreanwordle.game.exception.CustomException;
 import com.koreanwordle.game.exception.ErrorCode;
 import com.koreanwordle.game.repository.GameRepository;
 import com.koreanwordle.game.repository.WordRepository;
-import com.koreanwordle.game.service.rules.HintType;
-import com.koreanwordle.game.service.rules.SyllableType;
+import com.koreanwordle.game.rules.HintType;
+import com.koreanwordle.game.rules.SyllableType;
 import com.koreanwordle.game.util.HangulUtils;
-import com.koreanwordle.game.util.SyllableParts;
+import com.koreanwordle.game.dto.SyllableParts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,9 @@ public class GameServiceImpl implements GameService {
 
         Game game = gameRepository.getDailyGame(DAILY, today)
                 .orElseGet(() -> {
-                    Word word = wordRepository.findRandomWord()
+                    Word word = wordRepository.findRandomWord(PageRequest.of(0, 1))
+                            .stream()
+                            .findFirst()
                             .orElseThrow(() -> new CustomException(ErrorCode.WORD_NOT_FOUND));
 
                     return gameRepository.save(Game.createDailyGame(word, today));
@@ -56,7 +59,9 @@ public class GameServiceImpl implements GameService {
     @Transactional
     public GameResponse getCreateRandomGame() {
 
-        Word word = wordRepository.findRandomWord()
+        Word word = wordRepository.findRandomWord(PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.WORD_NOT_FOUND));
 
         Game game = gameRepository.save(Game.createRandomGame(word));
@@ -97,8 +102,8 @@ public class GameServiceImpl implements GameService {
 
 
         List<GuessResponse.SyllableHint> results = buildHints(
-                userWord,       // 사용자 단어 철자 분해
-                questionWord    // 문제의 단어 철자 분해
+                        userWord,       // 사용자 단어 철자 분해
+                        questionWord    // 문제의 단어 철자 분해
         );
 
         return GuessResponse.of(
@@ -168,6 +173,6 @@ public class GameServiceImpl implements GameService {
             ));
 
         }
-        return results;
+        return List.copyOf(results);
     }
 }

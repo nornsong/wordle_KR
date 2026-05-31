@@ -1,4 +1,4 @@
-package com.koreanwordle.game.util;
+package com.koreanwordle.game.dto;
 
 public record SyllableParts(
         String original,
