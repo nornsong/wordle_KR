@@ -36,6 +36,12 @@ dependencies {
 
     // Bean Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+    /* FE */
+
+    // JSP - Jasper
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
 }
 
 tasks.named('test') {
