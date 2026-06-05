@@ -7,13 +7,17 @@ import java.util.List;
 
 public record GuessResponse(
         boolean correct,
+        String correctAnswer,
+        String definition,
         List<SyllableHint> results
 ) {
     public static GuessResponse of(
             boolean correct,
+            String correctAnswer,
+            String definition,
             List<SyllableHint> results
     ) {
-        return new GuessResponse(correct, results);
+        return new GuessResponse(correct, correctAnswer, definition, results);
     }
 
     public record SyllableHint(
