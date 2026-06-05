@@ -1,5 +1,7 @@
 package com.koreanwordle.game.domain;
 
+import com.koreanwordle.game.exception.CustomException;
+import com.koreanwordle.game.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,5 +69,25 @@ public class Game {
         game.gameType = GameType.RANDOM;
         game.status = GameStatus.IN_PROGRESS;
         return game;
+    }
+
+    public void submit(boolean correct) {
+        if (this.status != GameStatus.IN_PROGRESS) {
+            throw new CustomException(ErrorCode.GAME_ALREADY_FINISHED);
+        }
+
+        if (attemptsCount >= maxAttemptsCount) {
+            throw new CustomException(ErrorCode.ATTEMPT_LIMIT_EXCEEDED);
+        }
+
+        attemptsCount++;
+
+        if (correct) {
+            status = GameStatus.COMPLETED;
+            completedAt = LocalDateTime.now();
+        } else if (attemptsCount >= maxAttemptsCount) {
+            status = GameStatus.FAILED;
+            completedAt = LocalDateTime.now();
+        }
     }
 }

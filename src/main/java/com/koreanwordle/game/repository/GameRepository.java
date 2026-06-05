@@ -22,10 +22,25 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Optional<Game> getDailyGame(GameType gameType, LocalDate dailyGameDate);
 
     @Query("""
-            select function('replace', w.word, '-', '')
+            select trim(function('replace', w.word, '-', ''))
             from Game g
             join g.word w
             where g.id = :gameId
     """)
     Optional<String> findNormalizedAnswerWord(Long gameId);
+
+    @Query("""
+            select g
+            from Game g
+            where g.id = :gameId
+    """)
+    Optional<Game> findGameById(Long gameId);
+
+    @Query("""
+            select w.definition
+            from Game g
+            join g.word w
+            where g.id = :gameId
+    """)
+    Optional<String> findAnswerDefinition(Long gameId);
 }

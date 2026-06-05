@@ -1,6 +1,7 @@
 package com.koreanwordle.game.service;
 
 import com.koreanwordle.game.domain.Game;
+import com.koreanwordle.game.domain.GameStatus;
 import com.koreanwordle.game.domain.Word;
 import com.koreanwordle.game.dto.GameResponse;
 import com.koreanwordle.game.dto.GuessResponse;
@@ -76,10 +77,13 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public GuessResponse submitAnswer(Long gameId, String submittedWord) {
 
         String correctWord = gameRepository.findNormalizedAnswerWord(gameId)
+                .orElseThrow(() -> new CustomException(ErrorCode.GAME_NOT_FOUND));
+
+        Game game = gameRepository.findGameById(gameId)
                 .orElseThrow(() -> new CustomException(ErrorCode.GAME_NOT_FOUND));
 
         if (submittedWord.length() != correctWord.length()) {
@@ -98,18 +102,36 @@ public class GameServiceImpl implements GameService {
         List<SyllableParts> userWord = HangulUtils.decomposeWord(submittedWord);
         List<SyllableParts> questionWord = HangulUtils.decomposeWord(correctWord);
 
-        boolean correct = submittedWord.equals(correctWord);
-
+        boolean sameWord = submittedWord.trim().equals(correctWord);
+        game.submit(sameWord);
 
         List<GuessResponse.SyllableHint> results = buildHints(
                         userWord,       // 사용자 단어 철자 분해
                         questionWord    // 문제의 단어 철자 분해
         );
 
-        return GuessResponse.of(
-                correct,
-                results
-        );
+        // sameWord 를 안쓴 이유가 IDE가 자꾸 sameWord가 false라고 잡아서 수정함
+        if (correctWord.equals(submittedWord.trim()) || game.getStatus() == GameStatus.FAILED) {
+            String answerDefinition = gameRepository.findAnswerDefinition(gameId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.GAME_NOT_FOUND));
+
+            return GuessResponse.of(
+                    sameWord,
+                    correctWord,
+                    answerDefinition,
+                    results
+            );
+        }
+
+        else {
+            return GuessResponse.of(
+                    sameWord,
+                    null,
+                    null,
+                    results
+            );
+        }
+
     }
 
     private List<GuessResponse.SyllableHint> buildHints(
