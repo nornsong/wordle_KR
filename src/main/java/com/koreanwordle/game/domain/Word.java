@@ -14,11 +14,16 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "word", nullable = false, unique = true)
+    // 동음이의어로 인한 unique 제약 삭제
+    @Column(name = "word", nullable = false)
     private String word;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String definition;
+
+    // 동음이의어 구분을 위한 어깨번호
+    @Column
+    private Integer homonymNum;
 
     @Column  // 품사
     private String pos;
