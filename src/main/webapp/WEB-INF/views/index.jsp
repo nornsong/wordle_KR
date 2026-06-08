@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Wordle</title>
+    <title>하루낱말</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -14,8 +14,7 @@
 <main class="app-shell">
     <header class="game-header">
         <div class="brand">
-            <span>K-</span>
-            <span>Wordle</span>
+            <span>하루낱말</span>
         </div>
         <div class="status-legend" aria-label="힌트 색상 설명">
             <span><i class="dot correct"></i>#6aaa64</span>

@@ -1,0 +1,18 @@
+services:
+  koreanwordle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: koreanwordle:latest
+    container_name: koreanwordle
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      PORT: 8080
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://koreanwordle-mysql.mysql.database.azure.com:3306/wordle?sslMode=REQUIRED
+      SPRING_DATASOURCE_USERNAME: wordleadmin
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
