@@ -1,0 +1,12 @@
+*.pem
+*.key
+.env
+.git
+.gradle
+.idea
+out
+HELP.md
+codex.txt
+README.md
+src/main/java/com/koreanwordle/game/config/application-local.yml
+src/main/resources/application-local.yml
