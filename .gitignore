@@ -41,7 +41,13 @@ AGENT.md
 codex.txt
 
 ### YML ###
-/src/main/resources/application.yml
+/src/main/resources/application-local.yml
+/src/main/java/com/koreanwordle/game/config/application-local.yml
 
 ### Env ###
 .env
+
+### Pem ###
+/src/main/resources/koreanwordle-vm_key.pem
+*.pem
+*.key
