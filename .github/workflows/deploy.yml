@@ -15,6 +15,9 @@ jobs:
       - name: Build and run Docker Compose
         env:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          DOCKER_BUILDKIT: "0"
+          COMPOSE_DOCKER_CLI_BUILD: "0"
         run: |
           docker compose down
-          docker compose up --build -d
+          docker compose build --memory 700m
+          docker compose up -d
