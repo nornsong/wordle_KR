@@ -1,10 +1,13 @@
-const WORD_LENGTH = 4;
+const WORD_LENGTH = 3;
 const board = document.getElementById("board");
 const toast = document.getElementById("toast");
 const guessForm = document.getElementById("guessForm");
 const guessInput = document.getElementById("guessInput");
 const dailyGameButton = document.getElementById("dailyGameButton");
 const randomGameButton = document.getElementById("randomGameButton");
+const helpButton = document.getElementById("helpButton");
+const helpCloseButton = document.getElementById("helpCloseButton");
+const helpModal = document.getElementById("helpModal");
 
 let currentGame = null;
 let currentRow = 0;
@@ -47,6 +50,14 @@ function showToast(message, isError = false) {
     showToast.timer = window.setTimeout(() => {
         toast.classList.remove("visible");
     }, 2200);
+}
+
+function openHelpModal() {
+    helpModal.hidden = false;
+}
+
+function closeHelpModal() {
+    helpModal.hidden = true;
 }
 
 async function requestJson(url, options = {}) {
@@ -243,6 +254,14 @@ guessInput.addEventListener("input", () => renderInputPreview(guessInput.value.t
 dailyGameButton.addEventListener("click", () => startDailyGame().catch((error) => showToast(error.message, true)));
 randomGameButton.addEventListener("click", () => startRandomGame().catch((error) => showToast(error.message, true)));
 document.querySelector(".keyboard").addEventListener("click", handleKeyboardClick);
+helpButton.addEventListener("click", openHelpModal);
+helpCloseButton.addEventListener("click", closeHelpModal);
+helpModal.addEventListener("click", (event) => {
+    if (event.target === helpModal) {
+        closeHelpModal();
+    }
+});
 
 initializeBoard();
+openHelpModal();
 startDailyGame().catch((error) => showToast(error.message, true));

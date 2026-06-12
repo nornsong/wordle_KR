@@ -14,7 +14,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("""
             select w
             from Word w
-            where length(function('replace', w.word, '-', '')) = 4
+            where length(function('replace', w.word, '-', '')) = 3
             order by function('rand')
     """)
     List<Word> findRandomWord(Pageable pageable);
