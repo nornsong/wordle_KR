@@ -16,13 +16,8 @@
         <div class="brand">
             <span>하루낱말</span>
         </div>
-        <div class="status-legend" aria-label="힌트 색상 설명">
-            <span><i class="dot correct"></i>#6aaa64</span>
-            <span><i class="dot present"></i>#c9b458</span>
-            <span><i class="dot absent"></i>#787c7e</span>
-        </div>
         <div class="header-actions">
-            <button type="button" class="icon-button" title="도움말" aria-label="도움말">?</button>
+            <button id="helpButton" type="button" class="icon-button" title="도움말" aria-label="도움말">?</button>
             <button type="button" class="icon-button" title="통계" aria-label="통계">▥</button>
         </div>
     </header>
@@ -44,8 +39,8 @@
                     name="submittedWord"
                     type="text"
                     inputmode="text"
-                    maxlength="4"
-                    placeholder="네 글자 단어"
+                    maxlength="3"
+                    placeholder="세 글자 단어"
                     aria-label="제출 단어">
             <button type="submit" class="submit-button">ENTER</button>
         </form>
@@ -88,6 +83,25 @@
         </div>
     </section>
 </main>
+
+<div id="helpModal" class="help-modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+    <div class="help-dialog">
+        <div class="help-header">
+            <h2 id="helpTitle">게임 안내</h2>
+            <button id="helpCloseButton" type="button" class="icon-button" title="닫기" aria-label="닫기">×</button>
+        </div>
+        <div class="help-content">
+            <p>세 글자 낱말을 입력해 정답을 맞혀 보세요.</p>
+            <p>각 칸 아래의 세 줄은 순서대로 초성, 중성, 종성 힌트입니다.</p>
+            <div class="help-list">
+                <span><i class="dot correct"></i>초록: 위치와 자모가 모두 맞음</span>
+                <span><i class="dot present"></i>노랑: 자모는 있지만 위치가 다름</span>
+                <span><i class="dot absent"></i>회색: 정답에 없는 자모</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="/js/k-wordle.js"></script>
 </body>
 </html>

@@ -43,6 +43,7 @@ codex.txt
 ### YML ###
 /src/main/resources/application-local.yml
 /src/main/java/com/koreanwordle/game/config/application-local.yml
+src/main/resources/config/application-local.yml
 
 ### Env ###
 .env
