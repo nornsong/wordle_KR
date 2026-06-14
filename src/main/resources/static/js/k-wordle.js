@@ -8,15 +8,60 @@ const randomGameButton = document.getElementById("randomGameButton");
 const helpButton = document.getElementById("helpButton");
 const helpCloseButton = document.getElementById("helpCloseButton");
 const helpModal = document.getElementById("helpModal");
+const resultModal = document.getElementById("resultModal");
+const resultCloseButton = document.getElementById("resultCloseButton");
+const resultMessage = document.getElementById("resultMessage");
+const resultAnswer = document.getElementById("resultAnswer");
+const resultDefinition = document.getElementById("resultDefinition");
 
 let currentGame = null;
 let currentRow = 0;
 let maxAttempts = 6;
+let isComposing = false;
 
 const statePriority = {
     ABSENT: 1,
     PRESENT: 2,
     CORRECT: 3
+};
+
+const CHOSEONG = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const JUNGSEONG = ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"];
+const JONGSEONG = ["", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const COMBINED_VOWELS = {
+    "ㅗㅏ": "ㅘ",
+    "ㅗㅐ": "ㅙ",
+    "ㅗㅣ": "ㅚ",
+    "ㅜㅓ": "ㅝ",
+    "ㅜㅔ": "ㅞ",
+    "ㅜㅣ": "ㅟ",
+    "ㅡㅣ": "ㅢ"
+};
+const COMBINED_FINALS = {
+    "ㄱㅅ": "ㄳ",
+    "ㄴㅈ": "ㄵ",
+    "ㄴㅎ": "ㄶ",
+    "ㄹㄱ": "ㄺ",
+    "ㄹㅁ": "ㄻ",
+    "ㄹㅂ": "ㄼ",
+    "ㄹㅅ": "ㄽ",
+    "ㄹㅌ": "ㄾ",
+    "ㄹㅍ": "ㄿ",
+    "ㄹㅎ": "ㅀ",
+    "ㅂㅅ": "ㅄ"
+};
+const SPLIT_FINALS = {
+    "ㄳ": ["ㄱ", "ㅅ"],
+    "ㄵ": ["ㄴ", "ㅈ"],
+    "ㄶ": ["ㄴ", "ㅎ"],
+    "ㄺ": ["ㄹ", "ㄱ"],
+    "ㄻ": ["ㄹ", "ㅁ"],
+    "ㄼ": ["ㄹ", "ㅂ"],
+    "ㄽ": ["ㄹ", "ㅅ"],
+    "ㄾ": ["ㄹ", "ㅌ"],
+    "ㄿ": ["ㄹ", "ㅍ"],
+    "ㅀ": ["ㄹ", "ㅎ"],
+    "ㅄ": ["ㅂ", "ㅅ"]
 };
 
 function initializeBoard(rows = maxAttempts) {
@@ -58,6 +103,21 @@ function openHelpModal() {
 
 function closeHelpModal() {
     helpModal.hidden = true;
+}
+
+function openResultModal(response, solved) {
+    resultMessage.textContent = solved ? "정답입니다." : "시도 횟수를 모두 사용했습니다.";
+    resultAnswer.textContent = response.correctAnswer || "-";
+    resultDefinition.textContent = response.definition || "뜻 정보가 없습니다.";
+    resultModal.hidden = false;
+}
+
+function closeResultModal() {
+    resultModal.hidden = true;
+}
+
+function shouldShowHelpModalOnLoad() {
+    return window.matchMedia("(max-width: 780px)").matches;
 }
 
 async function requestJson(url, options = {}) {
@@ -116,6 +176,82 @@ function tileFor(row, col) {
     return board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
 }
 
+function normalizeKoreanInput(value) {
+    return value.replace(/[^가-힣]/g, "").slice(0, WORD_LENGTH);
+}
+
+function isConsonant(value) {
+    return CHOSEONG.includes(value);
+}
+
+function isVowel(value) {
+    return JUNGSEONG.includes(value);
+}
+
+function isHangulSyllable(value) {
+    if (!value) {
+        return false;
+    }
+
+    const code = value.charCodeAt(0);
+    return code >= 0xac00 && code <= 0xd7a3;
+}
+
+function composeSyllable(cho, jung, jong = "") {
+    const choIndex = CHOSEONG.indexOf(cho);
+    const jungIndex = JUNGSEONG.indexOf(jung);
+    const jongIndex = JONGSEONG.indexOf(jong);
+
+    if (choIndex < 0 || jungIndex < 0 || jongIndex < 0) {
+        return "";
+    }
+
+    return String.fromCharCode(0xac00 + (choIndex * 21 + jungIndex) * 28 + jongIndex);
+}
+
+function decomposeSyllable(value) {
+    if (!isHangulSyllable(value)) {
+        return null;
+    }
+
+    const offset = value.charCodeAt(0) - 0xac00;
+    const choIndex = Math.floor(offset / 588);
+    const jungIndex = Math.floor((offset % 588) / 28);
+    const jongIndex = offset % 28;
+
+    return {
+        cho: CHOSEONG[choIndex],
+        jung: JUNGSEONG[jungIndex],
+        jong: JONGSEONG[jongIndex]
+    };
+}
+
+function syncGuessInput(force = false) {
+    if (!force && isComposing) {
+        renderInputPreview(normalizeKoreanInput(guessInput.value));
+        return;
+    }
+
+    const normalized = normalizeKoreanInput(guessInput.value.trim());
+    if (guessInput.value !== normalized) {
+        guessInput.value = normalized;
+    }
+    renderInputPreview(normalized);
+}
+
+function renderTileLetter(tile, letter) {
+    tile.innerHTML = "";
+
+    if (!letter) {
+        return;
+    }
+
+    const letterElement = document.createElement("span");
+    letterElement.className = "tile-letter";
+    letterElement.textContent = letter;
+    tile.appendChild(letterElement);
+}
+
 function renderInputPreview(word) {
     for (let col = 0; col < WORD_LENGTH; col += 1) {
         const tile = tileFor(currentRow, col);
@@ -123,9 +259,66 @@ function renderInputPreview(word) {
             continue;
         }
 
-        tile.textContent = word[col] || "";
-        tile.classList.toggle("filled", Boolean(word[col]));
+        renderTileLetter(tile, word[col] || "");
     }
+}
+
+function renderCurrentInput() {
+    renderInputPreview(normalizeKoreanInput(guessInput.value));
+}
+
+function appendVirtualJamo(jamo) {
+    const chars = Array.from(guessInput.value);
+    const lastIndex = chars.length - 1;
+    const last = chars[lastIndex];
+    const lastParts = decomposeSyllable(last);
+
+    if (isConsonant(jamo)) {
+        if (lastParts && lastParts.jung) {
+            if (!lastParts.jong && JONGSEONG.includes(jamo)) {
+                chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, jamo);
+            } else {
+                const combinedFinal = COMBINED_FINALS[`${lastParts.jong}${jamo}`];
+                if (combinedFinal) {
+                    chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, combinedFinal);
+                } else if (chars.length < WORD_LENGTH) {
+                    chars.push(jamo);
+                }
+            }
+        } else if (chars.length < WORD_LENGTH) {
+            chars.push(jamo);
+        }
+    }
+
+    if (isVowel(jamo)) {
+        if (isConsonant(last)) {
+            chars[lastIndex] = composeSyllable(last, jamo);
+        } else if (lastParts && lastParts.jung) {
+            if (lastParts.jong) {
+                if (chars.length < WORD_LENGTH) {
+                    const splitFinal = SPLIT_FINALS[lastParts.jong];
+                    const carryFinal = splitFinal ? splitFinal[1] : lastParts.jong;
+                    const remainFinal = splitFinal ? splitFinal[0] : "";
+
+                    chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, remainFinal);
+                    chars.push(composeSyllable(carryFinal, jamo));
+                }
+            } else {
+                const combinedVowel = COMBINED_VOWELS[`${lastParts.jung}${jamo}`];
+                if (combinedVowel) {
+                    chars[lastIndex] = composeSyllable(lastParts.cho, combinedVowel);
+                } else if (chars.length < WORD_LENGTH) {
+                    chars.push(jamo);
+                }
+            }
+        } else if (chars.length < WORD_LENGTH) {
+            chars.push(jamo);
+        }
+    }
+
+    guessInput.value = chars.join("");
+    renderCurrentInput();
+    guessInput.focus();
 }
 
 function normalizeHintName(hint) {
@@ -151,14 +344,16 @@ function renderGuess(response, submittedWord) {
         const jamos = result.jamos || [];
         const tileState = normalizeHintName(strongestHint(jamos));
 
-        tile.className = `tile ${tileState}`;
-        tile.textContent = result.syllable || submittedWord[col] || "";
+        tile.className = `tile filled ${tileState}`;
+        tile.style.setProperty("--tile-delay", `${col * 130}ms`);
+        renderTileLetter(tile, result.syllable || submittedWord[col] || "");
 
         const strip = document.createElement("div");
         strip.className = "jamo-strip";
-        jamos.forEach((jamo) => {
+        jamos.forEach((jamo, jamoIndex) => {
             const marker = document.createElement("span");
             marker.className = `jamo-state ${normalizeHintName(jamo.hint)}`;
+            marker.style.setProperty("--jamo-delay", `${col * 130 + 260 + jamoIndex * 90}ms`);
             marker.title = `${jamo.type}: ${jamo.value} / ${jamo.hint}`;
             strip.appendChild(marker);
             updateKeyboardKey(jamo.value, jamo.hint);
@@ -194,7 +389,9 @@ async function submitGuess(event) {
         return;
     }
 
-    const submittedWord = guessInput.value.trim();
+    syncGuessInput(true);
+    const submittedWord = guessInput.value;
+
     if (submittedWord.length !== WORD_LENGTH) {
         showToast(`${WORD_LENGTH}글자 단어를 입력해 주세요.`, true);
         return;
@@ -215,9 +412,11 @@ async function submitGuess(event) {
         if (response.correct) {
             showToast("정답입니다.");
             guessInput.disabled = true;
+            openResultModal(response, true);
         } else if (currentRow >= maxAttempts) {
             showToast("시도 횟수를 모두 사용했습니다.", true);
             guessInput.disabled = true;
+            openResultModal(response, false);
         } else {
             showToast("힌트를 확인해 보세요.");
         }
@@ -239,18 +438,32 @@ function handleKeyboardClick(event) {
 
     if (button.dataset.backspace === "true") {
         guessInput.value = guessInput.value.slice(0, -1);
-        renderInputPreview(guessInput.value);
+        renderCurrentInput();
+        guessInput.focus();
         return;
     }
 
-    if (button.dataset.key && guessInput.value.length < WORD_LENGTH) {
-        guessInput.value += button.dataset.key;
-        renderInputPreview(guessInput.value);
+    if (button.dataset.key) {
+        appendVirtualJamo(button.dataset.key);
     }
 }
 
 guessForm.addEventListener("submit", submitGuess);
-guessInput.addEventListener("input", () => renderInputPreview(guessInput.value.trim()));
+guessInput.addEventListener("compositionstart", () => {
+    isComposing = true;
+});
+guessInput.addEventListener("compositionend", () => {
+    isComposing = false;
+    syncGuessInput(true);
+});
+guessInput.addEventListener("input", (event) => {
+    if (event.isComposing || isComposing) {
+        renderCurrentInput();
+        return;
+    }
+
+    syncGuessInput();
+});
 dailyGameButton.addEventListener("click", () => startDailyGame().catch((error) => showToast(error.message, true)));
 randomGameButton.addEventListener("click", () => startRandomGame().catch((error) => showToast(error.message, true)));
 document.querySelector(".keyboard").addEventListener("click", handleKeyboardClick);
@@ -261,7 +474,15 @@ helpModal.addEventListener("click", (event) => {
         closeHelpModal();
     }
 });
+resultCloseButton.addEventListener("click", closeResultModal);
+resultModal.addEventListener("click", (event) => {
+    if (event.target === resultModal) {
+        closeResultModal();
+    }
+});
 
 initializeBoard();
-openHelpModal();
+if (shouldShowHelpModalOnLoad()) {
+    openHelpModal();
+}
 startDailyGame().catch((error) => showToast(error.message, true));
