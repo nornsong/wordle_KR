@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="naver-site-verification" content="baf78029da25beb85568a2fd15bd90177692e838">
     <title>하루낱말</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -202,5 +203,4 @@
 <script src="/js/k-wordle.js"></script>
 </body>
 </html>
-
 
