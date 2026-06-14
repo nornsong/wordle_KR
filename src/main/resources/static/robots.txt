@@ -1,0 +1,17 @@
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+
+User-agent: Yeti
+Allow: /
+Disallow: /api/
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://onwoorin.com/sitemap.xml
