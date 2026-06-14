@@ -13,3 +13,5 @@ Disallow: /api/
 User-agent: *
 Allow: /
 Disallow: /api/
+
+Sitemap: https://onwoorin.com/sitemap.xml
