@@ -486,3 +486,4 @@ if (shouldShowHelpModalOnLoad()) {
     openHelpModal();
 }
 startDailyGame().catch((error) => showToast(error.message, true));
+
