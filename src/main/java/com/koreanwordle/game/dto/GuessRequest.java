@@ -12,5 +12,9 @@ public record GuessRequest(
 
         @Schema(description = "정답 제출 단어", example = "소나무")
         @NotBlank(message = "submittedWord는 필수입니다.")
-        String submittedWord
+        String submittedWord,
+
+        @Schema(description = "현재 제출 시도 번호", example = "1")
+        @NotNull(message = "attemptNumber는 필수입니다.")
+        Integer attemptNumber
 ) { }

@@ -60,7 +60,7 @@ public class GameController {
     })
     @PostMapping("/submitAnswer")
     public ResponseEntity<GuessResponse> submitAnswer(@Valid @RequestBody GuessRequest request) {
-        GuessResponse response = gameService.submitAnswer(request.gameId(), request.submittedWord());
+        GuessResponse response = gameService.submitAnswer(request.gameId(), request.submittedWord(), request.attemptNumber());
         return ResponseEntity.ok(response);
     }
 }
