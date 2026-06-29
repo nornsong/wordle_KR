@@ -78,7 +78,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional
-    public GuessResponse submitAnswer(Long gameId, String submittedWord) {
+    public GuessResponse submitAnswer(Long gameId, String submittedWord, Integer attemptNumber) {
 
         String correctWord = gameRepository.findNormalizedAnswerWord(gameId)
                 .orElseThrow(() -> new CustomException(ErrorCode.GAME_NOT_FOUND));
@@ -103,7 +103,9 @@ public class GameServiceImpl implements GameService {
         List<SyllableParts> questionWord = HangulUtils.decomposeWord(correctWord);
 
         boolean sameWord = submittedWord.trim().equals(correctWord);
-        game.submit(sameWord);
+        if(game.getGameType() != DAILY) {
+            game.submit(sameWord);
+        }
 
         List<GuessResponse.SyllableHint> results = buildHints(
                         userWord,       // 사용자 단어 철자 분해
@@ -111,7 +113,8 @@ public class GameServiceImpl implements GameService {
         );
 
         // sameWord 를 안쓴 이유가 IDE가 자꾸 sameWord가 false라고 잡아서 수정함
-        if (correctWord.equals(submittedWord.trim()) || game.getStatus() == GameStatus.FAILED) {
+        if (correctWord.equals(submittedWord.trim()) || game.getStatus() == GameStatus.FAILED ||
+                (game.getGameType() == DAILY && game.getMaxAttemptsCount().equals(attemptNumber)) ) {
             String answerDefinition = gameRepository.findAnswerDefinition(gameId)
                     .orElseThrow(() -> new CustomException(ErrorCode.GAME_NOT_FOUND));
 
@@ -131,7 +134,6 @@ public class GameServiceImpl implements GameService {
                     results
             );
         }
-
     }
 
     private List<GuessResponse.SyllableHint> buildHints(
@@ -193,7 +195,6 @@ public class GameServiceImpl implements GameService {
                     user.original(),
                     jamos
             ));
-
         }
         return List.copyOf(results);
     }

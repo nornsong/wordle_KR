@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="하루낱말은 한글 유니코드 완성형 음절을 초성, 중성, 종성으로 분해해 자모 위치를 비교하는 세 글자 한국어 단어 추리 게임입니다.">
+    <link rel="canonical" href="https://onwoorin.com/intro">
     <title>하루낱말 소개</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,6 +74,16 @@
         <p>
             짧은 빈 시간에 부담 없이 한 문제를 풀 수 있도록 만들었습니다.
             단순한 단어 암기가 아니라, 자음과 모음의 위치를 비교하며 정답에 가까워지는 흐름을 제공합니다.
+        </p>
+    </section>
+
+    <section class="intro-section" aria-labelledby="hangulUnicodeTitle">
+        <h2 id="hangulUnicodeTitle">한글 유니코드로 비교하는 자모 힌트</h2>
+        <p>
+            하루낱말은 한글 유니코드의 완성형 음절인 가부터 힣까지의 글자를 초성, 중성, 종성으로 분해합니다.
+            제출한 세 글자 한국어 단어와 정답을 비교할 때 초성은 초성끼리, 중성은 중성끼리, 종성은 종성끼리 확인합니다.
+            같은 위치의 같은 자모는 초록색, 정답에 있지만 위치가 다른 자모는 노란색, 정답에 없는 자모는 진회색 힌트로 표시합니다.
+            이 과정을 통해 글자 전체뿐 아니라 한글을 구성하는 자음과 모음의 위치를 추리하며 정답에 가까워질 수 있습니다.
         </p>
     </section>
 
