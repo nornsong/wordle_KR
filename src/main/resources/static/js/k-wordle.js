@@ -5,14 +5,12 @@ const guessForm = document.getElementById("guessForm");
 const guessInput = document.getElementById("guessInput");
 const dailyGameButton = document.getElementById("dailyGameButton");
 const randomGameButton = document.getElementById("randomGameButton");
-const helpButton = document.getElementById("helpButton");
-const helpCloseButton = document.getElementById("helpCloseButton");
-const helpModal = document.getElementById("helpModal");
 const resultModal = document.getElementById("resultModal");
 const resultCloseButton = document.getElementById("resultCloseButton");
 const resultMessage = document.getElementById("resultMessage");
 const resultAnswer = document.getElementById("resultAnswer");
 const resultDefinition = document.getElementById("resultDefinition");
+const jamoTracker = document.getElementById("jamoTracker");
 
 let currentGame = null;
 let currentRow = 0;
@@ -27,41 +25,11 @@ const statePriority = {
 
 const CHOSEONG = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
 const JUNGSEONG = ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"];
-const JONGSEONG = ["", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
-const COMBINED_VOWELS = {
-    "ㅗㅏ": "ㅘ",
-    "ㅗㅐ": "ㅙ",
-    "ㅗㅣ": "ㅚ",
-    "ㅜㅓ": "ㅝ",
-    "ㅜㅔ": "ㅞ",
-    "ㅜㅣ": "ㅟ",
-    "ㅡㅣ": "ㅢ"
-};
-const COMBINED_FINALS = {
-    "ㄱㅅ": "ㄳ",
-    "ㄴㅈ": "ㄵ",
-    "ㄴㅎ": "ㄶ",
-    "ㄹㄱ": "ㄺ",
-    "ㄹㅁ": "ㄻ",
-    "ㄹㅂ": "ㄼ",
-    "ㄹㅅ": "ㄽ",
-    "ㄹㅌ": "ㄾ",
-    "ㄹㅍ": "ㄿ",
-    "ㄹㅎ": "ㅀ",
-    "ㅂㅅ": "ㅄ"
-};
-const SPLIT_FINALS = {
-    "ㄳ": ["ㄱ", "ㅅ"],
-    "ㄵ": ["ㄴ", "ㅈ"],
-    "ㄶ": ["ㄴ", "ㅎ"],
-    "ㄺ": ["ㄹ", "ㄱ"],
-    "ㄻ": ["ㄹ", "ㅁ"],
-    "ㄼ": ["ㄹ", "ㅂ"],
-    "ㄽ": ["ㄹ", "ㅅ"],
-    "ㄾ": ["ㄹ", "ㅌ"],
-    "ㄿ": ["ㄹ", "ㅍ"],
-    "ㅀ": ["ㄹ", "ㅎ"],
-    "ㅄ": ["ㅂ", "ㅅ"]
+const JONGSEONG = ["ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const JAMO_GROUPS = {
+    ONSET: CHOSEONG,
+    NUCLEUS: JUNGSEONG,
+    CODA: JONGSEONG
 };
 
 function initializeBoard(rows = maxAttempts) {
@@ -79,10 +47,37 @@ function initializeBoard(rows = maxAttempts) {
     }
 }
 
-function resetKeyboardState() {
-    document.querySelectorAll(".keyboard [data-key]").forEach((key) => {
-        key.dataset.hint = "";
-        key.classList.remove("correct", "present", "absent");
+function initializeJamoTracker() {
+    Object.entries(JAMO_GROUPS).forEach(([type, jamos]) => {
+        const list = jamoTracker.querySelector(`[data-jamo-type="${type}"]`);
+        if (!list) {
+            return;
+        }
+
+        list.innerHTML = "";
+        jamos.forEach((jamo) => {
+            const item = document.createElement("span");
+            item.className = "jamo-tracker-item";
+            item.dataset.jamoValue = jamo;
+            item.dataset.hint = "";
+            item.textContent = jamo;
+            item.title = `${jamo}: 미사용`;
+            item.addEventListener("animationend", () => {
+                if (item.dataset.hint === "ABSENT") {
+                    item.classList.add("removed");
+                }
+                item.classList.remove("dismissing");
+            });
+            list.appendChild(item);
+        });
+    });
+}
+
+function resetJamoTrackerState() {
+    jamoTracker.querySelectorAll("[data-jamo-value]").forEach((item) => {
+        item.dataset.hint = "";
+        item.classList.remove("correct", "present", "absent", "dismissing", "removed");
+        item.title = `${item.dataset.jamoValue}: 미사용`;
     });
 }
 
@@ -97,14 +92,6 @@ function showToast(message, isError = false) {
     }, 2200);
 }
 
-function openHelpModal() {
-    helpModal.hidden = false;
-}
-
-function closeHelpModal() {
-    helpModal.hidden = true;
-}
-
 function openResultModal(response, solved) {
     resultMessage.textContent = solved ? "정답입니다." : "시도 횟수를 모두 사용했습니다.";
     resultAnswer.textContent = response.correctAnswer || "-";
@@ -114,10 +101,6 @@ function openResultModal(response, solved) {
 
 function closeResultModal() {
     resultModal.hidden = true;
-}
-
-function shouldShowHelpModalOnLoad() {
-    return window.matchMedia("(max-width: 780px)").matches;
 }
 
 async function requestJson(url, options = {}) {
@@ -148,7 +131,7 @@ function applyGameResponse(game) {
     currentRow = 0;
     maxAttempts = game.maxAttemptsCount || 6;
     initializeBoard(maxAttempts);
-    resetKeyboardState();
+    resetJamoTrackerState();
     guessInput.value = "";
     guessInput.disabled = false;
     guessInput.focus();
@@ -178,52 +161,6 @@ function tileFor(row, col) {
 
 function normalizeKoreanInput(value) {
     return value.replace(/[^가-힣]/g, "").slice(0, WORD_LENGTH);
-}
-
-function isConsonant(value) {
-    return CHOSEONG.includes(value);
-}
-
-function isVowel(value) {
-    return JUNGSEONG.includes(value);
-}
-
-function isHangulSyllable(value) {
-    if (!value) {
-        return false;
-    }
-
-    const code = value.charCodeAt(0);
-    return code >= 0xac00 && code <= 0xd7a3;
-}
-
-function composeSyllable(cho, jung, jong = "") {
-    const choIndex = CHOSEONG.indexOf(cho);
-    const jungIndex = JUNGSEONG.indexOf(jung);
-    const jongIndex = JONGSEONG.indexOf(jong);
-
-    if (choIndex < 0 || jungIndex < 0 || jongIndex < 0) {
-        return "";
-    }
-
-    return String.fromCharCode(0xac00 + (choIndex * 21 + jungIndex) * 28 + jongIndex);
-}
-
-function decomposeSyllable(value) {
-    if (!isHangulSyllable(value)) {
-        return null;
-    }
-
-    const offset = value.charCodeAt(0) - 0xac00;
-    const choIndex = Math.floor(offset / 588);
-    const jungIndex = Math.floor((offset % 588) / 28);
-    const jongIndex = offset % 28;
-
-    return {
-        cho: CHOSEONG[choIndex],
-        jung: JUNGSEONG[jungIndex],
-        jong: JONGSEONG[jongIndex]
-    };
 }
 
 function syncGuessInput(force = false) {
@@ -267,60 +204,6 @@ function renderCurrentInput() {
     renderInputPreview(normalizeKoreanInput(guessInput.value));
 }
 
-function appendVirtualJamo(jamo) {
-    const chars = Array.from(guessInput.value);
-    const lastIndex = chars.length - 1;
-    const last = chars[lastIndex];
-    const lastParts = decomposeSyllable(last);
-
-    if (isConsonant(jamo)) {
-        if (lastParts && lastParts.jung) {
-            if (!lastParts.jong && JONGSEONG.includes(jamo)) {
-                chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, jamo);
-            } else {
-                const combinedFinal = COMBINED_FINALS[`${lastParts.jong}${jamo}`];
-                if (combinedFinal) {
-                    chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, combinedFinal);
-                } else if (chars.length < WORD_LENGTH) {
-                    chars.push(jamo);
-                }
-            }
-        } else if (chars.length < WORD_LENGTH) {
-            chars.push(jamo);
-        }
-    }
-
-    if (isVowel(jamo)) {
-        if (isConsonant(last)) {
-            chars[lastIndex] = composeSyllable(last, jamo);
-        } else if (lastParts && lastParts.jung) {
-            if (lastParts.jong) {
-                if (chars.length < WORD_LENGTH) {
-                    const splitFinal = SPLIT_FINALS[lastParts.jong];
-                    const carryFinal = splitFinal ? splitFinal[1] : lastParts.jong;
-                    const remainFinal = splitFinal ? splitFinal[0] : "";
-
-                    chars[lastIndex] = composeSyllable(lastParts.cho, lastParts.jung, remainFinal);
-                    chars.push(composeSyllable(carryFinal, jamo));
-                }
-            } else {
-                const combinedVowel = COMBINED_VOWELS[`${lastParts.jung}${jamo}`];
-                if (combinedVowel) {
-                    chars[lastIndex] = composeSyllable(lastParts.cho, combinedVowel);
-                } else if (chars.length < WORD_LENGTH) {
-                    chars.push(jamo);
-                }
-            }
-        } else if (chars.length < WORD_LENGTH) {
-            chars.push(jamo);
-        }
-    }
-
-    guessInput.value = chars.join("");
-    renderCurrentInput();
-    guessInput.focus();
-}
-
 function normalizeHintName(hint) {
     return String(hint || "ABSENT").toLowerCase();
 }
@@ -356,7 +239,7 @@ function renderGuess(response, submittedWord) {
             marker.style.setProperty("--jamo-delay", `${col * 130 + 260 + jamoIndex * 90}ms`);
             marker.title = `${jamo.type}: ${jamo.value} / ${jamo.hint}`;
             strip.appendChild(marker);
-            updateKeyboardKey(jamo.value, jamo.hint);
+            updateJamoTracker(jamo.type, jamo.value, jamo.hint);
         });
         tile.appendChild(strip);
     });
@@ -364,20 +247,34 @@ function renderGuess(response, submittedWord) {
     currentRow += 1;
 }
 
-function updateKeyboardKey(value, hint) {
-    const key = document.querySelector(`[data-key="${CSS.escape(value)}"]`);
-    if (!key) {
+function updateJamoTracker(type, value, hint) {
+    if (!type || !value) {
+        return;
+    }
+
+    const list = jamoTracker.querySelector(`[data-jamo-type="${type}"]`);
+    const item = Array.from(list?.querySelectorAll("[data-jamo-value]") || [])
+            .find((candidate) => candidate.dataset.jamoValue === value);
+    if (!item) {
         return;
     }
 
     const nextPriority = statePriority[hint] || 0;
-    const currentHint = key.dataset.hint || "";
+    const currentHint = item.dataset.hint || "";
     const currentPriority = statePriority[currentHint] || 0;
 
     if (nextPriority >= currentPriority) {
-        key.dataset.hint = hint;
-        key.classList.remove("correct", "present", "absent");
-        key.classList.add(normalizeHintName(hint));
+        item.dataset.hint = hint;
+        if (hint !== "ABSENT") {
+            item.classList.remove("dismissing", "removed");
+        }
+        item.classList.remove("correct", "present", "absent");
+        item.classList.add(normalizeHintName(hint));
+        item.title = `${value}: ${hint}`;
+
+        if (hint === "ABSENT" && !item.classList.contains("removed")) {
+            item.classList.add("dismissing");
+        }
     }
 }
 
@@ -402,7 +299,8 @@ async function submitGuess(event) {
             method: "POST",
             body: JSON.stringify({
                 gameId: currentGame.gameId,
-                submittedWord
+                submittedWord,
+                attemptNumber: currentRow + 1
             })
         });
 
@@ -425,29 +323,6 @@ async function submitGuess(event) {
     }
 }
 
-function handleKeyboardClick(event) {
-    const button = event.target.closest("button");
-    if (!button || guessInput.disabled) {
-        return;
-    }
-
-    if (button.dataset.enter === "true") {
-        guessForm.requestSubmit();
-        return;
-    }
-
-    if (button.dataset.backspace === "true") {
-        guessInput.value = guessInput.value.slice(0, -1);
-        renderCurrentInput();
-        guessInput.focus();
-        return;
-    }
-
-    if (button.dataset.key) {
-        appendVirtualJamo(button.dataset.key);
-    }
-}
-
 guessForm.addEventListener("submit", submitGuess);
 guessInput.addEventListener("compositionstart", () => {
     isComposing = true;
@@ -466,14 +341,6 @@ guessInput.addEventListener("input", (event) => {
 });
 dailyGameButton.addEventListener("click", () => startDailyGame().catch((error) => showToast(error.message, true)));
 randomGameButton.addEventListener("click", () => startRandomGame().catch((error) => showToast(error.message, true)));
-document.querySelector(".keyboard").addEventListener("click", handleKeyboardClick);
-helpButton.addEventListener("click", openHelpModal);
-helpCloseButton.addEventListener("click", closeHelpModal);
-helpModal.addEventListener("click", (event) => {
-    if (event.target === helpModal) {
-        closeHelpModal();
-    }
-});
 resultCloseButton.addEventListener("click", closeResultModal);
 resultModal.addEventListener("click", (event) => {
     if (event.target === resultModal) {
@@ -481,9 +348,7 @@ resultModal.addEventListener("click", (event) => {
     }
 });
 
+initializeJamoTracker();
 initializeBoard();
-if (shouldShowHelpModalOnLoad()) {
-    openHelpModal();
-}
 startDailyGame().catch((error) => showToast(error.message, true));
 
