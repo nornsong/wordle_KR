@@ -43,6 +43,9 @@ dependencies {
 
     // JSP - Jasper
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+
+    // Swagger
+    implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.31'
 }
 
 tasks.named('test') {
