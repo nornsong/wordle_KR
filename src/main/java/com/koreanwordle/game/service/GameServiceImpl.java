@@ -131,7 +131,6 @@ public class GameServiceImpl implements GameService {
                     results
             );
         }
-
     }
 
     private List<GuessResponse.SyllableHint> buildHints(
@@ -193,7 +192,6 @@ public class GameServiceImpl implements GameService {
                     user.original(),
                     jamos
             ));
-
         }
         return List.copyOf(results);
     }

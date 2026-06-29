@@ -1,0 +1,274 @@
+openapi: 3.0.3
+
+info:
+  title: 하루낱말 API
+  description: 하루낱말 게임 생성, 조회, 정답 제출 API 문서
+  version: 1.0.0
+
+servers:
+  - url: https://onwoorin.com
+    description: Production
+  - url: http://localhost:8080
+    description: Local
+
+tags:
+  - name: 게임 API
+    description: 하루낱말 게임 생성 및 정답 제출 API
+
+paths:
+  /api/wordleKR/dailyGame:
+    get:
+      tags:
+        - 게임 API
+      summary: 오늘의 게임 조회 또는 생성
+      description: 오늘 날짜에 해당하는 DAILY 게임을 조회하고, 없으면 새로 생성합니다.
+      responses:
+        '200':
+          description: 오늘의 게임 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponse'
+        '404':
+          description: 등록된 단어가 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: WORD_NOT_FOUND
+                message: 등록된 단어가 없습니다.
+
+  /api/wordleKR/createGame:
+    post:
+      tags:
+        - 게임 API
+      summary: 랜덤 게임 생성
+      description: 임의의 단어를 선택해 RANDOM 게임을 새로 생성합니다.
+      responses:
+        '200':
+          description: 랜덤 게임 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponse'
+        '404':
+          description: 등록된 단어가 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: WORD_NOT_FOUND
+                message: 등록된 단어가 없습니다.
+
+  /api/wordleKR/submitAnswer:
+    post:
+      tags:
+        - 게임 API
+      summary: 정답 제출
+      description: 사용자가 입력한 단어를 제출하고 초성, 중성, 종성 단위의 힌트를 반환합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuessRequest'
+            example:
+              gameId: 12
+              submittedWord: 소나무
+      responses:
+        '200':
+          description: 제출 결과 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuessResponse'
+        '400':
+          description: 잘못된 요청 또는 시도 횟수 초과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidWordLength:
+                  summary: 단어 길이 불일치
+                  value:
+                    code: INVALID_WORD_LENGTH
+                    message: 제출 단어의 길이가 정답 단어와 다릅니다.
+                invalidWordFormat:
+                  summary: 완성형 한글이 아닌 입력
+                  value:
+                    code: INVALID_WORD_FORMAT
+                    message: 제출 단어는 완성형 한글만 입력할 수 있습니다.
+                wordNotInDictionary:
+                  summary: 사전에 없는 단어
+                  value:
+                    code: WORD_NOT_IN_DICTIONARY
+                    message: 사전에 없는 단어입니다.
+                gameAlreadyFinished:
+                  summary: 이미 종료된 게임
+                  value:
+                    code: GAME_ALREADY_FINISHED
+                    message: 이미 종료된 게임입니다.
+                attemptLimitExceeded:
+                  summary: 제출 횟수 초과
+                  value:
+                    code: ATTEMPT_LIMIT_EXCEEDED
+                    message: 제출 횟수를 모두 사용했습니다.
+        '404':
+          description: 게임 또는 단어를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                gameNotFound:
+                  summary: 게임 없음
+                  value:
+                    code: GAME_NOT_FOUND
+                    message: 게임을 찾을 수 없습니다.
+                wordNotFound:
+                  summary: 단어 없음
+                  value:
+                    code: WORD_NOT_FOUND
+                    message: 등록된 단어가 없습니다.
+
+components:
+  schemas:
+    GameResponse:
+      type: object
+      description: 게임 시작 시 응답
+      properties:
+        gameId:
+          type: integer
+          format: int64
+          description: 게임 ID
+          example: 12
+        attemptsCount:
+          type: integer
+          description: 제출 횟수
+          example: 0
+        maxAttemptsCount:
+          type: integer
+          description: 최대 제출 가능 횟수
+          example: 7
+        startedAt:
+          type: string
+          format: date-time
+          description: 시작 시간
+          example: '2026-06-14T18:59:10.026770'
+        status:
+          type: string
+          description: 게임 상태
+          enum:
+            - COMPLETED
+            - IN_PROGRESS
+            - FAILED
+          example: IN_PROGRESS
+
+    GuessRequest:
+      type: object
+      description: 정답 제출 요청
+      required:
+        - gameId
+        - submittedWord
+      properties:
+        gameId:
+          type: integer
+          format: int64
+          description: 게임 ID
+          example: 12
+        submittedWord:
+          type: string
+          description: 정답 제출 단어
+          minLength: 1
+          example: 소나무
+
+    GuessResponse:
+      type: object
+      description: 정답 제출 결과 응답
+      properties:
+        correct:
+          type: boolean
+          description: 제출한 단어가 정답인지 여부
+          example: false
+        correctAnswer:
+          type: string
+          nullable: true
+          description: 게임이 종료된 경우 반환되는 정답 단어
+          example: 항공기
+        definition:
+          type: string
+          nullable: true
+          description: 게임이 종료된 경우 반환되는 정답 단어의 뜻
+          example: 사람이나 물건을 싣고 공중을 비행할 수 있는 탈것을 통틀어 이르는 말.
+        results:
+          type: array
+          description: 제출 단어의 각 글자에 대한 초성, 중성, 종성 힌트
+          items:
+            $ref: '#/components/schemas/SyllableHint'
+
+    SyllableHint:
+      type: object
+      description: 한 글자 단위의 힌트 결과
+      properties:
+        index:
+          type: integer
+          description: 제출 단어에서의 글자 위치. 0부터 시작
+          example: 0
+        syllable:
+          type: string
+          description: 제출한 글자
+          example: 소
+        jamos:
+          type: array
+          description: 해당 글자의 초성, 중성, 종성 힌트
+          items:
+            $ref: '#/components/schemas/JamoHint'
+
+    JamoHint:
+      type: object
+      description: 초성, 중성, 종성 단위의 힌트 결과
+      properties:
+        type:
+          type: string
+          description: 자모 위치 유형
+          enum:
+            - ONSET
+            - NUCLEUS
+            - CODA
+          example: ONSET
+        value:
+          type: string
+          description: 비교 대상 자모 값. 받침이 없으면 빈 문자열
+          example: ㅅ
+        hint:
+          type: string
+          description: 힌트 결과
+          enum:
+            - CORRECT
+            - PRESENT
+            - ABSENT
+          example: ABSENT
+
+    ErrorResponse:
+      type: object
+      description: API 에러 응답
+      properties:
+        code:
+          type: string
+          description: 에러 코드
+          enum:
+            - GAME_NOT_FOUND
+            - WORD_NOT_FOUND
+            - INVALID_WORD_LENGTH
+            - INVALID_WORD_FORMAT
+            - WORD_NOT_IN_DICTIONARY
+            - GAME_ALREADY_FINISHED
+            - ATTEMPT_LIMIT_EXCEEDED
+          example: GAME_NOT_FOUND
+        message:
+          type: string
+          description: 사용자에게 보여줄 수 있는 에러 메시지
+          example: 게임을 찾을 수 없습니다.
