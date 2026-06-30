@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: koreanwordle:latest
-    container_name: koreanwordle
+    container_name: haru_word
     restart: unless-stopped
     mem_limit: 1400m
     depends_on:
@@ -26,7 +26,7 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: koreanwordle-mysql
+    container_name: haru_word-mysql
     restart: unless-stopped
     mem_limit: 384m
     environment:
